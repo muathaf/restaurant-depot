@@ -1,0 +1,17 @@
+# ---- Core Web & Interface Framework ----
+streamlit>=1.42.0         # Modern UI components, caching engine, and inline data grid editors
+
+# ---- Data Processing & Analytics ----
+pandas>=2.2.0             # Fast, flexible DataFrame handling for bulk stock transformations
+numpy>=1.26.0             # High-performance array operations for pricing/weight matrices
+
+# ---- Database & ORM Integrations ----
+SQLAlchemy>=2.0.0         # Python SQL toolkit and Object Relational Mapper for safe data schemas
+pymysql>=1.1.0            # Pure Python MySQL client driver compatible with SQLAlchemy
+cryptography>=42.0.0      # Required by pymysql for secure password hashing connection types
+
+# ---- Observability & Metrics ----
+prometheus-client>=0.20.0 # Official Prometheus instrumentation library for custom application metrics
+
+# ---- Environmental Security & Configurations ----
+python-dotenv>=1.0.0      # Securely extracts wholesale DB passwords from a local .env file

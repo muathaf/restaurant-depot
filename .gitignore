@@ -1,0 +1,18 @@
+# Exclude Python virtual environments
+.venv/
+venv/
+ENV/
+
+# Exclude local environment secrets
+.env
+
+# Exclude Python caching logs
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+
+# Exclude local container data volumes
+mysql_data/
+grafana_data/

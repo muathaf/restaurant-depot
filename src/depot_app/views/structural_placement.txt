@@ -1,0 +1,5 @@
+restaurant_depot_repo/
+└── tests/
+    ├── __init__.py
+    └── test_inventory.py      # 🧪 Target Test Module
+

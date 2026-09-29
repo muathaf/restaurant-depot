@@ -1,0 +1,81 @@
+version: '3.8'
+
+networks:
+  depot_network:
+    driver: bridge
+
+volumes:
+  mysql_data:
+  grafana_data:
+
+services:
+  # 1. Database Layer: MySQL
+  mysql_db:
+    image: mysql:8.0
+    container_name: depot_mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-rootpassword}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-depot_db}
+      MYSQL_USER: ${MYSQL_USER:-depot_admin}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-depot_password}
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - depot_network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # 2. Application Layer: Streamlit
+  streamlit_app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: depot_streamlit
+    restart: always
+    ports:
+      - "8501:8501"   # Streamlit UI
+      - "8000:8000"   # Prometheus metrics scraping endpoint
+    environment:
+      - DB_HOST=mysql_db
+      - DB_NAME=${MYSQL_DATABASE:-depot_db}
+      - DB_USER=${MYSQL_USER:-depot_admin}
+      - DB_PASS=${MYSQL_PASSWORD:-depot_password}
+    networks:
+      - depot_network
+    depends_on:
+      mysql_db:
+        condition: service_healthy
+
+  # 3. Telemetry Layer: Prometheus
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: depot_prometheus
+    restart: always
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./config/prometheus.yml:/etc/prometheus/prometheus.yml
+    networks:
+      - depot_network
+    depends_on:
+      - streamlit_app
+
+  # 4. Visualization Layer: Grafana
+  grafana:
+    image: grafana/grafana:latest
+    container_name: depot_grafana
+    restart: always
+    ports:
+      - "3000:3000"
+    volumes:
+      - grafana_data:/var/lib/grafana
+    networks:
+      - depot_network
+    depends_on:
+      - prometheus
